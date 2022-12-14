@@ -275,4 +275,96 @@ describe('OrderedMap test', () => {
     myOrderedMap.setElement(1, 1);
     expect(myOrderedMap.getElementByKey(0)).to.equal(undefined);
   });
+
+  describe('findLe', () => {
+    let target: OrderedMap<number, unknown>;
+    beforeEach(() => {
+      target = new OrderedMap([], (a, b) => a - b);
+    });
+
+    it('should return the greater element lesser than key value when no equal value exists', () => {
+      target.setElement(1, 'a');
+      target.setElement(3, 'b');
+      target.setElement(5, 'c');
+
+      const result = target.findLe(4);
+
+      expect(result).to.be.eql([3, 'b']);
+    });
+
+    it('should return the greater element with matching key when it exists', () => {
+      target.setElement(1, 'a');
+      target.setElement(3, 'b');
+      target.setElement(5, 'c');
+
+      const result = target.findLe(5);
+
+      expect(result).to.be.eql([5, 'c']);
+    });
+  });
+
+  describe('iterateSection', () => {
+    let target: OrderedMap<number, unknown>;
+    beforeEach(() => {
+      target = new OrderedMap([], (a, b) => a - b);
+    });
+
+    it('should return an iterable that iterates between the informed min and max', () => {
+      target.setElement(1, 'a');
+      target.setElement(2, 'b');
+      target.setElement(3, 'c');
+      target.setElement(4, 'd');
+      target.setElement(5, 'e');
+
+      const result = [...target.iterateSection(2, 4)];
+
+      expect(result).to.be.eql([
+        [2, 'b'],
+        [3, 'c'],
+        [4, 'd']
+      ]);
+    });
+
+    it('should iterate between the informed min and max when min is not closed', () => {
+      target.setElement(1, 'a');
+      target.setElement(2, 'b');
+      target.setElement(3, 'c');
+      target.setElement(4, 'd');
+      target.setElement(5, 'e');
+
+      const result = [...target.iterateSection(2, 4, false)];
+
+      expect(result).to.be.eql([
+        [3, 'c'],
+        [4, 'd']
+      ]);
+    });
+
+    it('should iterate between the informed min and max when max is not closed', () => {
+      target.setElement(1, 'a');
+      target.setElement(2, 'b');
+      target.setElement(3, 'c');
+      target.setElement(4, 'd');
+      target.setElement(5, 'e');
+
+      const result = [...target.iterateSection(2, 4, true, false)];
+
+      expect(result).to.be.eql([
+        [2, 'b'],
+        [3, 'c']
+      ]);
+    });
+
+    it('should iterate between the informed min and max when min and max are not closed', () => {
+      target.setElement(1, 'a');
+      target.setElement(2, 'b');
+      target.setElement(3, 'c');
+      target.setElement(4, 'd');
+      target.setElement(5, 'e');
+
+      const result = [...target.iterateSection(2, 4, false, false)];
+
+      expect(result).to.be.eql([[3, 'c']]);
+    });
+  });
 });

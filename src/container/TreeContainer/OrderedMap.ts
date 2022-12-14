@@ -34,6 +34,7 @@ class OrderedMapIterator<K, V> extends TreeIterator<K, V> {
 export type { OrderedMapIterator };
 
 class OrderedMap<K, V> extends TreeContainer<K, V> {
+  private _end = this.end();
   /**
    * @param container - The initialization container.
    * @param cmp - The compare function.
@@ -146,6 +147,26 @@ class OrderedMap<K, V> extends TreeContainer<K, V> {
   }
   [Symbol.iterator]() {
     return this._iterationFunc(this._root);
+  }
+  findLe(key: K): [K, V] | undefined {
+    const iterator = this.reverseLowerBound(key);
+
+    return iterator.equals(this._end) ? undefined : [iterator.pointer[0], iterator.pointer[1]];
+  }
+  * iterateSection(min: K, max: K, closedMin = true, closedMax = true) {
+    const iterator = closedMin
+      ? this.reverseUpperBound(min)
+      : this.reverseLowerBound(min);
+
+    while (!iterator.equals(this._end)) {
+      const item = iterator.next().pointer;
+      const comparison = this._cmp(item[0], max);
+      if ((closedMax && comparison > 0) || (!closedMax && comparison >= 0)) {
+        break;
+      }
+
+      yield [item[0], item[1]];
+    }
   }
   // @ts-ignore
   eraseElementByIterator(iter: OrderedMapIterator<K, V>): OrderedMapIterator<K, V>;
